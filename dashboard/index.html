@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Scalper Paper Operations</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">S</span><span>SCALPER</span></div>
+    <div class="top-status" aria-live="polite">
+      <span class="badge paper">PAPER</span>
+      <span class="venue">Gate.io Perpetuals</span>
+      <span id="engine-status" class="status neutral">ENGINE CHECKING</span>
+      <span id="data-status" class="status neutral">DATA CONNECTING</span>
+      <span id="latency" class="latency">N/A ms</span>
+    </div>
+  </header>
+
+  <aside class="sidebar" aria-label="Primary navigation">
+    <a class="active" href="#overview">Overview</a>
+    <a href="#markets">Markets</a>
+    <a href="#analytics">Analytics</a>
+    <a href="#ama-control">AMA Control</a>
+    <a href="#trades">Trades</a>
+    <a href="#strategies">Strategies</a>
+    <a href="#research">Research</a>
+    <a href="#health">Health</a>
+  </aside>
+
+  <main>
+    <section id="overview" class="hero">
+      <div>
+        <p class="eyebrow">OPERATING STATE</p>
+        <h1 id="trading-state">LOADING</h1>
+        <p id="state-detail" class="muted">Waiting for authoritative backend state.</p>
+        <p id="halt-timer" class="halt-timer" aria-live="off" hidden></p>
+      </div>
+      <div class="controls" aria-label="Paper controls">
+        <button id="pause-button" class="danger" disabled>PAUSE NEW ENTRIES</button>
+        <button id="resume-button" disabled>RESUME PAPER</button>
+        <button id="flatten-button" disabled title="Close a paper position using a fresh quote">FLATTEN PAPER POSITIONS</button>
+        <button id="analyze-button" class="repair" disabled>ANALYZE &amp; AUTO-FIX</button>
+        <button id="new-run-button" class="new-run" disabled title="Archive this halted run and create a new PAPER experiment">START NEW PAPER RUN</button>
+        <button id="restart-button">RESTART DATA FEED</button>
+      </div>
+    </section>
+
+    <section id="market-scope-panel" class="market-scope-panel" aria-labelledby="market-scope-title">
+      <div class="scope-heading">
+        <div>
+          <p class="eyebrow">ENTRY ROUTING</p>
+          <h2 id="market-scope-title">Market Scope</h2>
+        </div>
+        <span id="scope-status" class="status neutral" aria-live="polite">CHECKING</span>
+      </div>
+      <div class="scope-controls" role="group" aria-label="Market scope selection">
+        <button id="scope-wide" class="scope-button" type="button" aria-pressed="false">WIDE CRYPTO</button>
+        <button id="scope-xau" class="scope-button" type="button" aria-pressed="false">XAU ONLY</button>
+        <label for="scope-policy">Switch policy</label>
+        <select id="scope-policy">
+          <option value="SWITCH_WHEN_FLAT">Switch when flat (recommended)</option>
+          <option value="SWITCH_NOW_KEEP_EXISTING">Switch now, keep existing</option>
+          <option value="FLATTEN_AND_SWITCH">Flatten and switch</option>
+        </select>
+      </div>
+      <dl class="scope-readout">
+        <div><dt>Current</dt><dd id="scope-current">CHECKING</dd></div>
+        <div><dt>Execution</dt><dd id="scope-execution">CHECKING</dd></div>
+        <div><dt>Allowed</dt><dd id="scope-allowed">CHECKING</dd></div>
+        <div><dt>Pending</dt><dd id="scope-pending">NONE</dd></div>
+      </dl>
+      <p id="scope-feedback" class="scope-feedback" role="alert" hidden></p>
+    </section>
+
+    <section id="xau-panel" class="panel xau-panel" aria-labelledby="xau-title" hidden>
+      <header>
+        <div><p class="eyebrow">DEDICATED PAPER PROFILE</p><h2 id="xau-title">XAU_USDT Perpetual</h2></div>
+        <span id="xau-signal" class="badge neutral">WAIT</span>
+      </header>
+      <div class="xau-grid">
+        <div><span>Price</span><strong id="xau-price">N/A</strong></div>
+        <div><span>Signal strength</span><strong id="xau-confidence">0%</strong></div>
+        <div><span>Regime</span><strong id="xau-regime">UNTRADABLE</strong></div>
+        <div><span>Volatility</span><strong id="xau-volatility">UNKNOWN</strong></div>
+        <div><span>XAUT</span><strong id="xaut-health">UNAVAILABLE</strong></div>
+        <div><span>PAXG</span><strong id="paxg-health">UNAVAILABLE</strong></div>
+        <div><span>Position</span><strong id="xau-position">FLAT</strong></div>
+        <div><span>Entry / PnL</span><strong id="xau-entry-pnl">N/A / N/A</strong></div>
+        <div><span>Stop / Target</span><strong id="xau-stop-target">N/A / N/A</strong></div>
+        <div><span>Leverage / Risk</span><strong id="xau-leverage-risk">1x / PAPER</strong></div>
+      </div>
+      <p id="xau-reason" class="analytics-note">Waiting for XAU market data.</p>
+    </section>
+
+    <section id="ama-control" class="panel ama-panel" aria-labelledby="ama-title">
+      <header>
+        <div><p class="eyebrow">INDEPENDENT RESEARCH · NO EXECUTION INFLUENCE</p><h2 id="ama-title">XAU KAMA/AMA20 Control</h2></div>
+        <span id="ama-status" class="badge neutral" aria-live="polite">CHECKING</span>
+      </header>
+      <div class="ama-grid">
+        <div><span>Price</span><strong id="ama-price">N/A</strong></div>
+        <div><span>KAMA 10 / 20 / 50</span><strong id="ama-values">N/A / N/A / N/A</strong></div>
+        <div><span>Regime</span><strong id="ama-regime">UNKNOWN</strong></div>
+        <div><span>Raw / filtered</span><strong id="ama-signals">WAIT / WAIT</strong></div>
+        <div><span>Hysteresis</span><strong id="ama-hysteresis">N/A</strong></div>
+        <div><span>Quality gate</span><strong id="ama-quality">WARMING UP</strong></div>
+        <div><span>Reference</span><strong id="ama-reference">UNAVAILABLE</strong></div>
+        <div><span>Evidence</span><strong id="ama-evidence">CHECKING</strong></div>
+      </div>
+      <div class="table-wrap">
+        <table class="ama-table">
+          <thead><tr><th>Shadow family</th><th>Status</th><th>Closed trades</th><th>Net</th><th>Profit factor</th><th>Max drawdown</th><th>Evidence</th></tr></thead>
+          <tbody id="ama-comparison-rows"><tr><td colspan="7" class="empty">Waiting for same-timeline XAU observations.</td></tr></tbody>
+        </table>
+      </div>
+      <p id="ama-complexity" class="analytics-note">Complexity alpha is unproven. Manual promotion is required.</p>
+    </section>
+
+    <section id="accounting-banner" class="integrity-banner checking" aria-live="assertive">
+      <strong id="accounting-state">ACCOUNTING CHECKING</strong>
+      <span id="accounting-detail">Entries remain blocked until checkpoint, engine, and ledger reconcile.</span>
+    </section>
+
+    <section id="recovery-panel" class="recovery-panel" aria-label="Built-in diagnosis" aria-live="polite">
+      <strong id="recovery-status">BUILT-IN DIAGNOSIS</strong>
+      <p id="recovery-detail">Analyze &amp; Auto-fix checks accounting, refreshes market data, and resumes when safe.</p>
+      <p id="recovery-trigger" class="muted" hidden></p>
+      <ul id="recovery-checks"></ul>
+      <p id="recovery-next">Recovered positions and risk halts show the action required here.</p>
+      <p id="control-feedback" role="alert" hidden></p>
+    </section>
+
+    <section class="metrics" aria-label="Portfolio metrics">
+      <article><span>Equity</span><strong id="equity">N/A</strong><small>SIMULATED USDT</small></article>
+      <article><span>Today PnL</span><strong id="pnl">N/A</strong><small>AFTER COSTS</small></article>
+      <article><span>Daily drawdown</span><strong id="drawdown">N/A</strong><small>FROM UTC-DAY PEAK</small></article>
+      <article><span>Trades</span><strong id="trades">N/A</strong><small>TODAY</small></article>
+      <article><span>Exposure</span><strong id="positions">N/A</strong><small>OPEN POSITIONS</small></article>
+      <article><span>Active</span><strong id="active-symbols">N/A</strong><small>SCREENED MARKETS</small></article>
+    </section>
+
+    <section id="open-trade-ticker" class="trade-ticker" aria-live="polite" hidden>OPEN PAPER TRADE</section>
+
+    <section id="analytics" class="panel analytics-panel" aria-label="Profitability and risk analytics">
+      <header>
+        <div><p class="eyebrow">LEDGER-DERIVED ANALYTICS</p><h2>Gross-to-Net and Risk</h2></div>
+        <div class="analytics-filter"><label for="analytics-scope">View</label><select id="analytics-scope"><option>ALL</option><option>CRYPTO</option><option>XAU</option></select><span id="evidence-status" class="badge neutral">CHECKING</span></div>
+      </header>
+      <div class="analytics-grid">
+        <dl>
+          <div><dt>Normal strategy net</dt><dd id="normal-net">N/A</dd></div>
+          <div><dt>Recovery net</dt><dd id="recovery-net">N/A</dd></div>
+          <div><dt>Manual net</dt><dd id="manual-net">N/A</dd></div>
+          <div><dt>Full-run net</dt><dd id="full-net">N/A</dd></div>
+        </dl>
+        <dl>
+          <div><dt>Gross price PnL</dt><dd id="gross-pnl">N/A</dd></div>
+          <div><dt>Fees</dt><dd id="total-fees">N/A</dd></div>
+          <div><dt>Open-position fees</dt><dd id="open-fees">N/A</dd></div>
+          <div><dt>Realized / unrealized</dt><dd id="realized-unrealized">N/A</dd></div>
+          <div><dt>Spread / slippage</dt><dd id="spread-slippage">N/A</dd></div>
+          <div><dt>Turnover</dt><dd id="turnover">N/A</dd></div>
+        </dl>
+        <dl>
+          <div><dt>Session / UTC / WIB DD</dt><dd id="calendar-drawdowns">N/A</dd></div>
+          <div><dt>Run-start / high-water DD</dt><dd id="run-drawdowns">N/A</dd></div>
+          <div><dt>Normal strategy DD</dt><dd id="normal-drawdown">N/A</dd></div>
+          <div><dt>Open / daily risk used</dt><dd id="risk-usage">N/A</dd></div>
+        </dl>
+        <dl>
+          <div><dt>Strategy mode</dt><dd id="experiment-mode">UNCHANGED BASELINE</dd></div>
+          <div><dt>Exit mode</dt><dd id="exit-mode">BASELINE FULL TP</dd></div>
+          <div><dt>Blocks: re-entry / cost</dt><dd id="experiment-blocks">0 / 0</dd></div>
+          <div><dt>Trades / active hour</dt><dd id="trade-frequency">N/A</dd></div>
+        </dl>
+      </div>
+      <p class="analytics-note">Recovery and manual results are excluded from normal strategy evidence. Historical spread and slippage remain unavailable where fill-time attribution was not recorded.</p>
+    </section>
+
+    <div class="grid">
+      <section id="markets" class="panel markets-panel">
+        <header><div><p class="eyebrow">PUBLIC MARKET DATA</p><h2>Gate Futures Screen</h2></div><span class="muted">5s REST snapshot</span></header>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Market</th><th>Last</th><th>24h</th><th>Spread</th><th>Volume</th><th>Funding</th><th>Screen</th><th>Signal strength</th><th>Signal</th><th>State</th></tr></thead>
+            <tbody id="market-rows"><tr><td colspan="10" class="empty">Waiting for Gate market data…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="health" class="panel health-panel">
+        <header><div><p class="eyebrow">FAIL-CLOSED STATUS</p><h2>System Health</h2></div></header>
+        <dl>
+          <div><dt>Execution</dt><dd>SIMULATION ONLY</dd></div>
+          <div><dt>Accounting</dt><dd id="accounting-health">CHECKING</dd></div>
+          <div><dt>Risk engine</dt><dd id="risk-health">CHECKING</dd></div>
+          <div><dt>Risk state</dt><dd id="risk-state">CHECKING</dd></div>
+          <div><dt>Execution model</dt><dd id="execution-model">PAPER SIM</dd></div>
+          <div><dt>Market source</dt><dd id="data-source">N/A</dd></div>
+          <div><dt>Data age</dt><dd id="data-age">N/A</dd></div>
+          <div><dt>Last event</dt><dd id="last-event">N/A</dd></div>
+          <div><dt>Orders / positions</dt><dd id="orders-positions">0 / 0</dd></div>
+          <div><dt>Run / session</dt><dd id="run-session">N/A</dd></div>
+          <div><dt>Build / config</dt><dd id="build-config">N/A</dd></div>
+          <div><dt>Checkpoint / event</dt><dd id="checkpoint-event">N/A</dd></div>
+          <div><dt>Restart / outage</dt><dd id="restart-outage">N/A</dd></div>
+          <div><dt>Recovery action</dt><dd id="recovery-action">NONE</dd></div>
+          <div><dt>Free disk</dt><dd id="free-disk">N/A</dd></div>
+        </dl>
+        <div id="tradingview-card" class="tv-card" aria-label="TradingView secondary intelligence">
+          <div class="tv-card-title">
+            <div><p class="eyebrow">SECONDARY · RESEARCH ONLY</p><strong>TradingView MCP</strong></div>
+            <span id="tv-status" class="status neutral">DISABLED</span>
+          </div>
+          <div class="tv-details">
+            <span>Chart</span><strong id="tv-symbol">N/A</strong>
+            <span>Timeframe</span><strong id="tv-timeframe">N/A</strong>
+            <span>Bias / signal strength</span><strong id="tv-bias">UNAVAILABLE / N/A</strong>
+            <span>Secondary price / divergence</span><strong id="tv-price">N/A / N/A</strong>
+            <span>Indicator studies</span><strong id="tv-indicators">N/A</strong>
+            <span>Regime / Pine</span><strong id="tv-regime">UNAVAILABLE / UNAVAILABLE</strong>
+            <span>Nautilus agreement</span><strong id="tv-agreement">UNAVAILABLE</strong>
+            <span>Latency / freshness</span><strong id="tv-timing">N/A / N/A</strong>
+          </div>
+          <p id="tv-detail" class="tv-detail">No execution influence. Gate and Nautilus remain authoritative.</p>
+        </div>
+        <div id="alerts" class="alerts" aria-live="assertive"></div>
+      </section>
+    </div>
+
+    <section id="trades" class="panel trades-panel">
+      <header><div><p class="eyebrow">PAPER EXECUTION AUDIT</p><h2>Trade History</h2></div><span class="muted">Last 48 hours</span></header>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Closed</th><th>Market</th><th>Class</th><th>Side</th><th>Open</th><th>Close</th><th>Gross</th><th>Costs</th><th>Net</th><th>PnL %</th><th>Exit</th></tr></thead>
+          <tbody id="trade-rows"><tr><td colspan="11" class="empty">No timestamped paper trades in the last 48 hours.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="strategies" class="panel strategies">
+      <header><div><p class="eyebrow">STRATEGY LAB</p><h2>Challengers</h2></div><span id="strategy-badge" class="badge neutral">CHECKING</span></header>
+      <div class="strategy-grid">
+        <article><strong>REST Momentum V2</strong><span id="strategy-status">CHECKING</span><p id="strategy-detail">Current PAPER execution baseline.</p></article>
+        <article><strong>Microstructure Entry V3</strong><span id="entry-v3-status">CHECKING</span><p id="entry-v3-detail">Waiting for the causal Gate WebSocket shadow feed.</p></article>
+        <article><strong>XAU KAMA20 Control V2</strong><span id="ama-strategy-status">CHECKING</span><p id="ama-strategy-detail">Independent shadow control. It cannot submit orders.</p></article>
+      </div>
+    </section>
+
+    <section id="research" class="panel research-panel" aria-labelledby="research-title">
+      <header>
+        <div><p class="eyebrow">OFFLINE EVIDENCE · READ ONLY</p><h2 id="research-title">Research and Promotion</h2></div>
+        <span id="research-status" class="badge neutral">CHECKING</span>
+      </header>
+      <p id="research-detail" class="research-note" aria-live="polite">Loading the latest frozen research report.</p>
+
+      <div class="research-identity" aria-label="Experiment identity">
+        <dl><dt>Dataset</dt><dd id="research-dataset">N/A</dd></dl>
+        <dl><dt>Dataset hash</dt><dd id="research-dataset-hash">N/A</dd></dl>
+        <dl><dt>Git commit</dt><dd id="research-commit">N/A</dd></dl>
+        <dl><dt>Config hash</dt><dd id="research-config">N/A</dd></dl>
+        <dl><dt>Execution profile</dt><dd id="research-profile">N/A</dd></dl>
+        <dl><dt>Experiment IDs</dt><dd id="research-experiments">N/A</dd></dl>
+      </div>
+
+      <div class="research-block">
+        <h3>Strategy Tournament</h3>
+        <div class="table-wrap">
+          <table class="research-table">
+            <thead><tr><th>Strategy</th><th>Version</th><th>Lifecycle</th><th>Comparable</th><th>Trades</th><th>Gross exp.</th><th>Net exp.</th><th>PF</th><th>Max DD</th><th>Edge / cost</th><th>Validation</th><th>Test</th><th>Holdout</th><th>Stress</th><th>Stability</th><th>Eligible</th><th>Blocked by</th></tr></thead>
+            <tbody id="research-strategy-rows"><tr><td colspan="17" class="empty">No frozen strategy comparison has loaded.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="research-block">
+        <h3>Universe</h3>
+        <div class="table-wrap">
+          <table class="research-detail-table">
+            <thead><tr><th>Market</th><th>Status</th><th>Snapshot turnover</th><th>Spread</th><th>Listing age</th><th>Funding</th><th>Reason</th></tr></thead>
+            <tbody id="research-universe-rows"><tr><td colspan="7" class="empty">No frozen universe has loaded.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="research-block">
+        <h3>Top Candidates</h3>
+        <div class="table-wrap">
+          <table class="research-detail-table">
+            <thead><tr><th>Market</th><th>Side</th><th>Momentum</th><th>Percentile</th><th>Breakout</th><th>Volatility</th><th>Volume</th><th>Expected move</th><th>Cost</th><th>Edge / cost</th><th>Gate</th></tr></thead>
+            <tbody id="research-candidate-rows"><tr><td colspan="11" class="empty">No cross-sectional candidates have loaded.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="research-block">
+        <h3>Overfitting Audit</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Experiments</th><th>Families</th><th>Variants</th><th>Holdout access</th><th>CPCV paths</th><th>Positive paths</th><th>DSR</th><th>PBO</th><th>Null test</th></tr></thead>
+            <tbody id="research-overfit-rows"><tr><td colspan="9" class="empty">No overfitting audit has loaded.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="research-split">
+        <div class="research-block">
+          <h3>Candidate Funnel</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Evidence</th><th>Generated</th><th>Accepted</th><th>Rejected</th><th>Binding gate</th><th>Rejected</th></tr></thead>
+              <tbody id="research-funnel-rows"><tr><td colspan="6" class="empty">No candidate funnel has loaded.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="research-block">
+          <h3>No-Trade Value</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Evidence</th><th>Distinct rejected</th><th>Losses avoided</th><th>Profit missed</th><th>Net filter benefit</th><th>No-trade time</th></tr></thead>
+              <tbody id="research-no-trade-rows"><tr><td colspan="6" class="empty">No candidate outcomes have loaded.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="research-block">
+        <h3>Execution Edge</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Strategy</th><th>Gross</th><th>Spread</th><th>Fee</th><th>Slippage</th><th>Latency</th><th>Adverse</th><th>Funding</th><th>Impact</th><th>Net realizable</th></tr></thead>
+            <tbody id="research-edge-rows"><tr><td colspan="10" class="empty">No execution decomposition has loaded.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="research-block">
+        <h3>Strategy Lifecycle</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Strategy</th><th>Version</th><th>State</th><th>Reason</th></tr></thead>
+            <tbody id="research-lifecycle-rows"><tr><td colspan="4" class="empty">No lifecycle registry has loaded.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <p class="research-note">Research cannot place orders or promote itself. PAPER activation requires a separate operator approval. LIVE remains unavailable.</p>
+    </section>
+  </main>
+
+  <div id="connection-banner" class="connection-banner" hidden>BACKEND UNAVAILABLE: CONTROLS DISABLED</div>
+</body>
+</html>

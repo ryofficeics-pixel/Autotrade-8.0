@@ -1,0 +1,208 @@
+[trading]
+mode = "PAPER"
+live_trading_enabled = false
+live_confirmation = ""
+venue = "GATE"
+trader_id = "SCALPER-PAPER-001"
+starting_balance_usdt = "300"
+leverage = "1"
+
+[logging]
+console_level = "WARNING"
+file_level = "INFO"
+directory = "logs"
+file_name = "engine"
+max_file_size_bytes = 10000000
+max_backup_count = 5
+
+[market_data]
+poll_seconds = 5
+stale_after_seconds = 15
+active_symbols = 8
+minimum_quote_volume = "5000000"
+maximum_spread_bps = "12"
+
+[market]
+scope = "WIDE_CRYPTO"
+
+[mode_switch]
+policy = "SWITCH_WHEN_FLAT"
+
+[xau]
+execution_symbol = "XAU_USDT"
+stale_after_seconds = 15
+short_window = 3
+trend_window = 12
+entry_threshold_bps = "12"
+high_volatility_bps = "16"
+low_volatility_bps = "3"
+
+[xau.ama_control]
+enabled = true
+execution_enabled = false
+fast_period = 10
+control_period = 20
+slow_period = 50
+kama_fast = 2
+kama_slow = 30
+atr_proxy_window = 20
+atr_multiplier = "1.50"
+minimum_hysteresis_bps = "3"
+minimum_slope_bps = "0.10"
+maximum_distance_bps = "50"
+minimum_net_edge_bps = "3"
+minimum_confidence = "0.55"
+minimum_regime_observations = 3
+maximum_spread_bps = "8"
+minimum_quote_volume_usdt = "1000000"
+maximum_reference_dispersion_bps = "25"
+maximum_reference_dislocation_bps = "35"
+reference_required = false
+notional_usdt = "15"
+maximum_holding_seconds = 900
+round_trip_fee_bps = "10"
+slippage_bps_per_side = "2"
+funding_buffer_bps = "3"
+stressed_cost_multiplier = "1.50"
+minimum_comparison_trades = 30
+quarantine_minimum_trades = 30
+quarantine_profit_factor = "0.80"
+decision_interval_seconds = 30
+report_interval_seconds = 60
+
+[xau.confirmations]
+enabled = true
+required = false
+symbols = ["XAUT_USDT", "PAXG_USDT"]
+abnormal_divergence_bps = "18"
+
+# Conservative, unvalidated PAPER defaults. Global limits remain absolute.
+[xau.risk]
+risk_per_trade_usdt = "0.15"
+maximum_position_notional_usdt = "15"
+maximum_leverage = "1"
+maximum_daily_loss_usdt = "3"
+maximum_consecutive_losses = 3
+stop_loss_method = "FIXED_BPS"
+stop_loss_bps = "35"
+take_profit_method = "FIXED_BPS"
+take_profit_bps = "55"
+trailing_enabled = false
+trailing_bps = "30"
+cooldown_seconds = 60
+volatility_scaling = true
+high_volatility_size_factor = "0.50"
+degraded_confirmation_size_factor = "0.75"
+minimum_confidence = "0.65"
+maximum_spread_bps = "8"
+slippage_bps = "2"
+maximum_holding_seconds = 300
+
+[paper_strategy]
+enabled = true
+symbol = "ETH_USDT"
+notional_usdt = "30"
+window = 12
+persistence_ticks = 5
+regime_window = 36
+entry_threshold_bps = "20"
+minimum_net_edge_bps = "12"
+minimum_confidence = "0.60"
+stop_loss_bps = "35"
+take_profit_bps = "55"
+max_hold_seconds = 300
+cooldown_seconds = 60
+slippage_bps = "2"
+daily_loss_usdt = "6"
+max_drawdown_pct = "3"
+
+[paper_strategy.evidence_halt]
+enabled = true
+minimum_trades = 100
+minimum_trading_days = 10
+profit_factor_floor = "0.80"
+
+# Profit-seeking changes remain independent and OFF in the unchanged baseline.
+[paper_strategy.experiments]
+risk_normalized_sizing = false
+risk_budget_usdt = "0.20"
+maximum_position_notional_usdt = "30"
+maximum_symbol_exposure_usdt = "30"
+liquidity_notional_cap_usdt = "30"
+signal_reset_reentry = false
+maximum_symbol_attempts = 0
+attempt_window_seconds = 3600
+maximum_consecutive_symbol_losses = 0
+maximum_symbol_loss_utc_day_usdt = "0"
+maximum_symbol_loss_wib_day_usdt = "0"
+candidate_ranking = false
+candidate_top_n = 1
+cost_to_edge_gate = false
+cost_multiplier = "1.50"
+market_quality_filters = false
+maximum_entry_spread_bps = "12"
+minimum_entry_quote_volume = "5000000"
+minimum_depth_usdt = "0"
+maximum_one_bar_volatility_bps = "0"
+maximum_price_gap_bps = "0"
+require_order_book = false
+exit_variant = "BASELINE_FULL_TP"
+runner_trail_bps = "35"
+runner_max_hold_seconds = 300
+edge_decay_time_exit = false
+protective_orders = false
+
+[paper_strategy.entry_v3]
+enabled = true
+shadow_enabled = true
+execution_enabled = false
+feature_window_events = 256
+feature_window_ms = 5000
+minimum_events = 12
+
+[paper_strategy.entry_v3.impulse]
+window_ms = 1500
+minimum_bps = "8"
+
+[paper_strategy.entry_v3.pullback]
+minimum_ratio = "0.20"
+maximum_ratio = "0.60"
+reacceleration_bps = "2"
+
+[paper_strategy.entry_v3.flow]
+confirmation = "0.15"
+breakout_confirmation = "0.35"
+
+[paper_strategy.entry_v3.book]
+depth = 5
+confirmation = "0.05"
+maximum_spread_bps = "8"
+
+[paper_strategy.entry_v3.exhaustion]
+vwap_extension_bps = "15"
+
+[paper_strategy.entry_v3.edge]
+minimum_net_edge_bps = "5"
+continuation_fraction = "0.35"
+observed_latency_cap_ms = 1000
+
+[paper_strategy.entry_v3.whipsaw]
+block_ms = 30000
+maximum_reversals = 4
+
+[dashboard]
+host = "127.0.0.1"
+port = 8767
+
+[tradingview]
+enabled = true
+confirmation_mode = "async"
+weight = "0.00"
+timeout_ms = 2500
+cache_enabled = true
+cache_ttl_seconds = 15
+poll_seconds = 15
+stale_after_seconds = 45
+expected_timeframe = "5"
+pine_enabled = true
+screenshot_enabled = false
