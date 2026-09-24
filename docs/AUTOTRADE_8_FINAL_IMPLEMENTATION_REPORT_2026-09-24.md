@@ -242,10 +242,12 @@ different settlement intervals, stale/skewed/missing data, min depth, cash
 reservation, stale SENTRY reevaluation at allocation/commit, unpromoted alpha,
 immediate one-leg hedge response, unavailable-feed abstention, causal zone
 visibility and event safety. `compileall` and `git diff --check` pass.
-The inherited suite, Ruff, mypy, pip check and Playwright could not run here:
-pytest, NautilusTrader, Ruff, mypy and Playwright are absent; package registry
-and market endpoints timed out. Do not attribute previous Windows results to
-this checkout.
+`pip check` passed. The inherited pytest suite, Ruff and mypy could not run
+here: pytest, NautilusTrader, Ruff and mypy are absent and the package
+registry timed out. A local Playwright attempt found its Node package but
+could not launch Chromium because the browser binary is missing. No visual
+dashboard result is claimed. Do not attribute previous Windows test results
+to this checkout.
 
 ## 31. Failure injection
 
