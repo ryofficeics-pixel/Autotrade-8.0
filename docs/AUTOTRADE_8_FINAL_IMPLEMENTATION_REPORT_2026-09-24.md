@@ -150,8 +150,11 @@ Unverified exchange event times stay null. It collects no credentials and
 cannot submit orders. A single attempted forward capture at
 2026-09-24T12:26:09Z recorded **8/8 endpoints UNAVAILABLE** because direct
 market-API access timed out in this environment. No price, BBO, funding, or
-synthetic book was substituted. The raw capture is local untracked research
-data and has not been frozen or verified as an immutable dataset.
+synthetic book was substituted. A read-only shadow CLI processed this actual
+failed capture and reported `PUBLIC_FEEDS_UNAVAILABLE`, 0 normalized
+opportunities, 0 qualified families and CASH, with account equity unknown.
+The raw capture is local untracked research data and has not been frozen or
+verified as an immutable dataset.
 
 ## 19. Execution
 
@@ -234,10 +237,10 @@ feed normalization would misleadingly show fictitious opportunities.
 
 ## 30. Tests
 
-Ten new dependency-free safety tests pass, covering carry accounting,
+Eleven new dependency-free safety tests pass, covering carry accounting,
 different settlement intervals, stale/skewed/missing data, min depth, cash
 reservation, stale SENTRY reevaluation at allocation/commit, unpromoted alpha,
-immediate one-leg hedge response, causal zone
+immediate one-leg hedge response, unavailable-feed abstention, causal zone
 visibility and event safety. `compileall` and `git diff --check` pass.
 The inherited suite, Ruff, mypy, pip check and Playwright could not run here:
 pytest, NautilusTrader, Ruff, mypy and Playwright are absent; package registry
@@ -280,7 +283,7 @@ tests were added. These fixes do not provide an actual two-venue executor.
 ## 35. Changed files
 
 Added `autotrade8/{opportunity,costs,allocator,sentry,funding,hedge,scanner,
-zones,event,public_capture}.py`, config, and `tests/test_autotrade8_stdlib.py`.
+zones,event,public_capture,shadow_cli}.py`, config, and `tests/test_autotrade8_stdlib.py`.
 Updated README, architecture and risk documentation. The exact committed file
 list is `git show --stat` for the delivery SHA.
 

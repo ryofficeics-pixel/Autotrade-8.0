@@ -1,13 +1,17 @@
 """Safety regressions runnable without the optional Nautilus/pytest toolchain."""
 
 import math
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
 from autotrade8.allocator import CapitalAllocator, CapitalError, CapitalLedger
 from autotrade8.event import EventEvidence, HoundEvent, evaluate_shadow
 from autotrade8.hedge import BundleState, HedgeAction, IllegalTransition, LegFill, MultiLegBundle
 from autotrade8.opportunity import CostBreakdown, Family, Leg, Lifecycle, Opportunity, Side, VenueHealth
 from autotrade8.scanner import OpportunityScanner, Quote, ScanConfig
+from autotrade8.shadow_cli import inspect_capture
 from autotrade8.sentry import SentryContext, evaluate
 from autotrade8.zones import Bar, confirmed_zones, visible_zones
 
@@ -130,6 +134,17 @@ class Alpha8SafetyTests(unittest.TestCase):
         self.assertEqual(d.state, "SHADOW_BLOCKED")
         self.assertEqual(d.components["TIDE"], "SOCIAL_DATA_UNAVAILABLE")
         self.assertEqual(d.components["GUARD"], "CONTRACT_SAFETY_UNVERIFIED")
+
+    def test_unavailable_real_feed_abstains_without_inventing_equity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "capture.jsonl"
+            path.write_text(json.dumps({"schema": "PUBLIC_FORWARD_CAPTURE_V1",
+                                        "mode": "SHADOW", "captured_at": "2026-09-24T00:00:00Z",
+                                        "feeds": {"GATE": {"status": "UNAVAILABLE"}}}) + "\n")
+            state = inspect_capture(path, reference_capital_usd=300)
+        self.assertEqual(state["allocation"], "CASH")
+        self.assertEqual(state["first_rejection_reason"], "PUBLIC_FEEDS_UNAVAILABLE")
+        self.assertIsNone(state["account_equity"])
 
 
 if __name__ == "__main__":

@@ -226,3 +226,9 @@ Run the dependency-free safety tests:
 ```shell
 python -m unittest tests.test_autotrade8_stdlib -v
 ```
+
+Assess the last raw capture without inventing market data:
+
+```shell
+python -m autotrade8.shadow_cli --capture data/alpha8/public_forward_capture.jsonl
+```
