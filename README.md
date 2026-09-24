@@ -221,6 +221,18 @@ Forward public-data capture (no API key):
 python -m autotrade8.public_capture --once --output data/alpha8/public_forward_capture.jsonl
 ```
 
+For continuous forward collection on the connected host, run one collector:
+
+```shell
+python -m autotrade8.public_capture --output-dir data/alpha8/captures --interval-seconds 60 --max-segment-mib 64 --max-total-mib 1024
+```
+
+It writes UTC-day JSONL segments, retains existing files on restart, and stops
+when the 1 GiB storage budget is reached. It never deletes historical data.
+Record the printed file path; pass that segment to `shadow_cli` below. Market
+responses are raw evidence only; a successful HTTP response does not qualify
+an alpha family or permit an order.
+
 Run the dependency-free safety tests:
 
 ```shell

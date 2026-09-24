@@ -10,6 +10,7 @@ from autotrade8.allocator import CapitalAllocator, CapitalError, CapitalLedger
 from autotrade8.event import EventEvidence, HoundEvent, evaluate_shadow
 from autotrade8.hedge import BundleState, HedgeAction, IllegalTransition, LegFill, MultiLegBundle
 from autotrade8.opportunity import CostBreakdown, Family, Leg, Lifecycle, Opportunity, Side, VenueHealth
+from autotrade8.public_capture import CaptureLimitError, append_capture_bounded
 from autotrade8.scanner import OpportunityScanner, Quote, ScanConfig
 from autotrade8.shadow_cli import inspect_capture
 from autotrade8.sentry import SentryContext, evaluate
@@ -31,6 +32,23 @@ def context(now=100.5):
 
 
 class Alpha8SafetyTests(unittest.TestCase):
+    def test_forward_capture_rotates_and_halts_at_disk_cap_across_restart(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            record = {"schema": "PUBLIC_FORWARD_CAPTURE_V1", "mode": "SHADOW",
+                      "feeds": {"GATE_PERP_BOOK": {"status": "UNAVAILABLE"}}}
+            first = append_capture_bounded(directory, record,
+                                           segment_bytes=120, total_bytes=300)
+            second = append_capture_bounded(directory, record,
+                                            segment_bytes=120, total_bytes=300)
+            self.assertNotEqual(first, second)
+            self.assertEqual(json.loads(first.read_text()), record)
+            self.assertEqual(json.loads(second.read_text()), record)
+            with self.assertRaisesRegex(CaptureLimitError, "CAPTURE_TOTAL_STORAGE_LIMIT"):
+                append_capture_bounded(directory, record,
+                                       segment_bytes=120, total_bytes=200)
+            self.assertEqual(len(list(directory.glob("capture-*.jsonl"))), 2)
+
     def test_carry_is_shadow_and_costed_on_matched_notional(self):
         scanner = OpportunityScanner(ScanConfig(matched_notional_usd=75))
         result = scanner.scan([quote(kind="SPOT"), quote()], context())

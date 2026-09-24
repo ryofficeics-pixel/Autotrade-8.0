@@ -155,6 +155,10 @@ failed capture and reported `PUBLIC_FEEDS_UNAVAILABLE`, 0 normalized
 opportunities, 0 qualified families and CASH, with account equity unknown.
 The raw capture is local untracked research data and has not been frozen or
 verified as an immutable dataset.
+For a connected host, the collector also supports a single bounded continuous
+process: UTC-day segments, 64 MiB per segment and 1 GiB total by default.
+It retains prior segments across restarts and stops before exceeding the cap;
+no market data has been collected by this added mode in this environment.
 
 ## 19. Execution
 
@@ -237,11 +241,12 @@ feed normalization would misleadingly show fictitious opportunities.
 
 ## 30. Tests
 
-Eleven new dependency-free safety tests pass, covering carry accounting,
+Twelve new dependency-free safety tests pass, covering carry accounting,
 different settlement intervals, stale/skewed/missing data, min depth, cash
 reservation, stale SENTRY reevaluation at allocation/commit, unpromoted alpha,
 immediate one-leg hedge response, unavailable-feed abstention, causal zone
-visibility and event safety. `compileall` and `git diff --check` pass.
+visibility, event safety and capture rotation/storage budget. `compileall` and
+`git diff --check` pass.
 `pip check` passed. The inherited pytest suite, Ruff and mypy could not run
 here: pytest, NautilusTrader, Ruff and mypy are absent and the package
 registry timed out. A local Playwright attempt found its Node package but

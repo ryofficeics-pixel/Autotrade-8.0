@@ -58,29 +58,80 @@ def collect_once(*, timeout_seconds: float = 5.0) -> dict[str, object]:
 
 def append_capture(path: Path, result: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    line = json.dumps(result, sort_keys=True, separators=(",", ":"),
-                      allow_nan=False).encode() + b"\n"
+    line = _capture_line(result)
     with path.open("ab") as stream:
         stream.write(line)
         stream.flush()
         os.fsync(stream.fileno())
 
 
+def _capture_line(result: dict[str, object]) -> bytes:
+    return (json.dumps(result, sort_keys=True, separators=(",", ":"),
+                       allow_nan=False).encode() + b"\n")
+
+
+class CaptureLimitError(RuntimeError):
+    """The read-only capture has reached its storage budget."""
+
+
+def append_capture_bounded(directory: Path, result: dict[str, object], *,
+                           segment_bytes: int, total_bytes: int) -> Path:
+    """Append one complete record to a UTC-day segment, or stop before a disk cap.
+
+    Existing segments are never truncated or removed. A restarted collector counts
+    their sizes before accepting new data. This cap applies only to files created
+    by this collector in the requested directory.
+    """
+    line = _capture_line(result)
+    if segment_bytes <= 0 or total_bytes <= 0 or len(line) > segment_bytes:
+        raise CaptureLimitError("CAPTURE_RECORD_EXCEEDS_SEGMENT_LIMIT")
+    directory.mkdir(parents=True, exist_ok=True)
+    segments = list(directory.glob("capture-????????-???.jsonl"))
+    occupied = sum(path.stat().st_size for path in segments)
+    if occupied + len(line) > total_bytes:
+        raise CaptureLimitError("CAPTURE_TOTAL_STORAGE_LIMIT")
+    prefix = f"capture-{datetime.now(UTC):%Y%m%d}-"
+    for index in range(1000):
+        path = directory / f"{prefix}{index:03d}.jsonl"
+        if not path.exists() or path.stat().st_size + len(line) <= segment_bytes:
+            append_capture(path, result)
+            return path
+    raise CaptureLimitError("CAPTURE_DAILY_SEGMENT_LIMIT")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Read-only raw public market capture")
-    parser.add_argument("--output", type=Path, required=True)
+    target = parser.add_mutually_exclusive_group(required=True)
+    target.add_argument("--output", type=Path, help="single-file capture, requires --once")
+    target.add_argument("--output-dir", type=Path, help="bounded rolling capture")
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--interval-seconds", type=float, default=60.0)
     parser.add_argument("--timeout-seconds", type=float, default=5.0)
+    parser.add_argument("--max-segment-mib", type=int, default=64)
+    parser.add_argument("--max-total-mib", type=int, default=1024)
     args = parser.parse_args()
     if args.interval_seconds < 30 or not 0 < args.timeout_seconds <= 30:
         parser.error("interval >= 30 seconds and 0 < timeout <= 30 seconds required")
+    if args.output is not None and not args.once:
+        parser.error("continuous capture requires --output-dir for bounded storage")
+    if not 0 < args.max_segment_mib <= args.max_total_mib:
+        parser.error("0 < max-segment-mib <= max-total-mib required")
     while True:
         record = collect_once(timeout_seconds=args.timeout_seconds)
-        append_capture(args.output, record)
+        if args.output_dir is not None:
+            try:
+                path = append_capture_bounded(
+                    args.output_dir, record, segment_bytes=args.max_segment_mib * 1024**2,
+                    total_bytes=args.max_total_mib * 1024**2)
+            except CaptureLimitError as exc:
+                parser.exit(2, f"Capture stopped: {exc}. Preserve the files and raise the cap "
+                            "only after reviewing disk capacity.\n")
+        else:
+            path = args.output
+            append_capture(path, record)
         statuses = {name: row["status"] for name, row in record["feeds"].items()}
         print(json.dumps({"captured_at": record["captured_at"], "statuses": statuses,
-                          "orders": "DISABLED"}))
+                          "file": str(path), "orders": "DISABLED"}), flush=True)
         if args.once:
             return
         time.sleep(args.interval_seconds)
