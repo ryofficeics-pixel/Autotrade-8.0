@@ -1,5 +1,16 @@
 # Risk Management
 
+## AUTOTRADE 8 research invariant
+
+New funding, basis, breakout-context, and on-chain modules have no PAPER or
+LIVE order route. `config/autotrade8_shadow.toml` forbids execution. All newly
+discovered opportunities are OBSERVING; SENTRY rejects an unpromoted family,
+stale exchange events, timestamp skew, insufficient top-of-book depth, negative
+economics, and inadequate capital. Multi-leg hedge states are a research safety
+model only until integrated with Nautilus and tested against persisted positions.
+An initial one-leg fill requests immediate hedge action. The existing
+`STRATEGY_EVIDENCE_FAILED` halt must not be cleared by these research modules.
+
 ## Scope-Specific Risk
 
 The XAU profile has independent PAPER parameters for risk per trade, maximum notional, leverage,

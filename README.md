@@ -206,3 +206,23 @@ This workflow uses only public Gate data and cannot place orders:
 .venv\Scripts\python.exe -m autotrade.wide_crypto_cli verify --project-root . --dataset research\datasets\wide-crypto-v1-...
 .venv\Scripts\python.exe -m autotrade.wide_crypto_cli full --project-root .
 ```
+# AUTOTRADE 8 shadow research (in progress)
+
+The new `autotrade8` package implements a common costed opportunity model,
+SENTRY, a cash-first capital allocator, structural funding scanners, hedge
+state research, and causal volume zones. All engines remain **SHADOW** and
+cannot submit orders. The existing PAPER strategy is still halted because its
+measured edge failed. See `docs/AUTOTRADE_8_FINAL_IMPLEMENTATION_REPORT_2026-09-24.md`
+for the exact implemented scope and missing evidence.
+
+Forward public-data capture (no API key):
+
+```shell
+python -m autotrade8.public_capture --once --output data/alpha8/public_forward_capture.jsonl
+```
+
+Run the dependency-free safety tests:
+
+```shell
+python -m unittest tests.test_autotrade8_stdlib -v
+```

@@ -1,0 +1,31 @@
+# Independent research process. No runtime order route or account credentials.
+mode = "SHADOW"
+live_trading_enabled = false
+paper_execution_enabled = false
+max_active_opportunity_bundles = 1
+leverage = 1
+
+[funding_carry]
+enabled = true
+execution_enabled = false
+
+[cross_exchange_funding]
+enabled = true
+execution_enabled = false
+
+[cross_exchange_basis]
+enabled = true
+execution_enabled = false
+
+[cross_sectional_breakout]
+enabled = true
+execution_enabled = false
+research_family = "WIDE_CRYPTO_RESEARCH_V1"
+
+[onchain_event]
+enabled = true
+execution_enabled = false
+
+[rl_allocator]
+enabled = false
+execution_enabled = false

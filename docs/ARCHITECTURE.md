@@ -218,3 +218,24 @@ replay. Cross-sectional features are computed once on a shared causal timeline. 
 families consume that same feature state and the same execution profiles. `autotrade.robust_validation`
 adds fixed-parameter CPCV, chronological stage metrics, a batch-sealed final holdout, parameter-neighbor
 diagnostics, and fail-closed promotion checks. None of these modules imports the runtime trader.
+# AUTOTRADE 8 shadow research boundary (2026-09-24)
+
+`autotrade8/` is a separate, standard-library-only research package. It accepts
+normalized, timestamped public quotes and constructs costed two-leg opportunities.
+It has no imports of `autotrade.paper`, no exchange credentials, no order method,
+and no authority to change the Nautilus portfolio or the existing halt.
+`OpportunityScanner` runs SENTRY on every candidate; all new families are
+`OBSERVING` with zero validated evidence, so none are executable. `CASH` is the
+allocator's default. The in-memory `CapitalLedger` is a research prototype,
+not a second portfolio source of truth; do not connect it to PAPER without a
+Nautilus reconciliation and restart-safe reservation adapter.
+
+The source code in `autotrade/wide_crypto_*` and `autotrade/research.py` remains
+the authoritative historical research for the old directional experiments.
+`autotrade8.public_capture` appends raw public responses with local receive
+clocks and explicitly leaves unverified exchange event time missing. A raw
+capture cannot be used as BBO/L2 fill proof. Future work must normalize and
+verify event-time semantics before any cross-venue scan from that feed.
+
+On-chain event interfaces remain SHADOW_BLOCKED. TensorTrade is a design
+reference only; no RL package is in the production dependency set.
