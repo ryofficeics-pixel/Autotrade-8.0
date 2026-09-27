@@ -6,8 +6,9 @@ It is not a promise of continuous profit. Its job is to preserve capital by defa
 
 ## Current status
 
-- Documentation foundation only.
-- No implementation in this repository is approved for runtime use.
+- Documentation foundation plus an in-memory L2 integrity monitor and tests;
+  see [implementation note](docs/22_MARKET_TRUTH_IMPLEMENTATION.md).
+- No implementation in this repository is approved for trading runtime use.
 - No LIVE mode exists in the approved design.
 - Existing screenshots are inspiration/hypothesis sources, not evidence.
 - `autotrade8_phase1.zip` is an archived prototype, not the implementation baseline.
@@ -59,6 +60,20 @@ The +30% in 30 days objective is an aspiration used for reporting. It cannot cha
 23. [Traceability matrix](docs/TRACEABILITY_MATRIX.md)
 
 Repository-wide implementation rules are in [AGENTS.md](AGENTS.md), contribution rules in [CONTRIBUTING.md](CONTRIBUTING.md), and vulnerability handling in [SECURITY.md](SECURITY.md).
+
+## Run the current observe-only app
+
+With Python 3.11+ from the repository root:
+
+```bash
+PYTHONPATH=src python -m autotrade8.app
+```
+
+Open `http://127.0.0.1:8768`. The built-in input is a labeled **synthetic**
+book with a sequence gap. For a canonical local NDJSON file use
+`PYTHONPATH=src python -m autotrade8.app --input path/to/file.ndjson`.
+Windows PowerShell equivalent: `$env:PYTHONPATH="src"; python -m autotrade8.app`.
+This is a replay inspector, not a venue collector or trading bot.
 
 ## Build rule
 
