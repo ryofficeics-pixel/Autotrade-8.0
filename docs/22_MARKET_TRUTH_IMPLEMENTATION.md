@@ -9,6 +9,9 @@
   book, reconnect, stale feed, clock skew, invalid numbers and recovery paths.
 - `src/autotrade8/app.py` provides a loopback-only, read-only replay inspector.
   Its default sample is explicitly synthetic and deliberately ends in a gap.
+- `AUTOTRADE8_AUTOSTART.bat` implements the Windows current-user Startup
+  shortcut and a restart loop for this observe-only replay. It satisfies only
+  the local Windows bootstrap part of D-021/NFR-005; restart never arms trading.
 - Exact contiguous integer sequence semantics are a **normalizer contract**;
   venue-specific sequence ranges or overlap rules must be validated separately.
   The monitor alone is not an account health gate or permission to place orders.
@@ -23,6 +26,8 @@ must contain the exact `BookEvent` fields in `app.py`, with `bids`/`asks` as
 `[["price", "quantity"], ...]` decimal strings. Sample data is not market data.
 The app replays a bounded fixture at its recorded arrival times and does not
 collect a live feed, accept browser uploads or store any events.
+The Windows launcher is not executable on the Linux CI runner; its install,
+uninstall and restart behavior needs a Windows smoke check before broad use.
 Inject clocks in nanoseconds and choose the thresholds from the measured venue
 capture distribution. Feed a complete snapshot on every reconnect or gap.
 `BookHealth.entry_allowed` describes only the L2 book; a runtime entry must also
@@ -45,3 +50,7 @@ or data migration and no trading exposure. Rollback removes `src/`, `tests/` and
 this note. Invalid events block the monitored book; the consumer must record
 the rejection independently and request a fresh snapshot. Neither a reconnect
 nor a manual override can synthesize missing exchange facts.
+The BAT creates one `.lnk` in the current user's Startup folder. `uninstall`
+removes that link; no registry, system service, admin rights or credentials are
+used. Restarting the inspector rebuilds a fresh offline replay, not an account
+session. If Python or imports fail, the launcher stops instead of looping.

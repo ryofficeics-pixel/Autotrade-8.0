@@ -75,6 +75,17 @@ book with a sequence gap. For a canonical local NDJSON file use
 Windows PowerShell equivalent: `$env:PYTHONPATH="src"; python -m autotrade8.app`.
 This is a replay inspector, not a venue collector or trading bot.
 
+### Windows sign-in autostart
+
+Double-click `AUTOTRADE8_AUTOSTART.bat` once. It creates a **current-user**
+Startup shortcut and runs the dashboard now. At each Windows sign-in the same
+launcher starts the dashboard and retries after an unexpected exit (10 seconds).
+Keep the repository at the same path; moving it breaks the shortcut. Python
+3.11+ must be installed. To remove sign-in autostart, run
+`AUTOTRADE8_AUTOSTART.bat uninstall` from Command Prompt. Closing the console
+stops the current process; uninstalling does not close an existing console.
+It always starts unarmed, with synthetic replay and no venue connection.
+
 ## Build rule
 
 No code phase may begin until the documents for that phase have no unresolved safety-critical decisions. Every implementation pull request must identify the requirements and acceptance tests it satisfies.
